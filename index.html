@@ -1214,17 +1214,7 @@
         };
 
         // ================================================================
-        // STATE
-        // ================================================================
-        let currentLang = 'en';
-        let currentStep = 1;
-        let audioQueue = [];
-        let isPlayingAll = false;
-        let currentAudio = null;
-        let currentPlayingId = null;
-
-        // ================================================================
-        // DOM REFS
+        // DOM REFS (Dideklarasikan di awal)
         // ================================================================
         const loadingScreen = document.getElementById('loading-screen');
         const onboarding = document.getElementById('onboarding');
@@ -1235,10 +1225,44 @@
         const playAllBtn = document.getElementById('playAllBtn');
 
         // ================================================================
+        // STATE
+        // ================================================================
+        let currentLang = 'en';
+        let currentStep = 1;
+        let audioQueue = [];
+        let isPlayingAll = false;
+        let currentAudio = null;
+        let currentPlayingId = null;
+
+        // ================================================================
+        // CEK STATUS ONBOARDING DI localStorage
+        // ================================================================
+        const ONBOARDING_KEY = 'axn_onboarding_done';
+
+        function checkOnboardingStatus() {
+            const done = localStorage.getItem(ONBOARDING_KEY);
+            if (done === 'true') {
+                // Langsung tampilkan dokumentasi
+                loadingScreen.classList.add('hidden');
+                onboarding.classList.add('hidden');
+                mainNav.style.display = 'flex';
+                documentEl.classList.add('visible');
+                renderDocument(currentLang);
+                navLangSelect.value = currentLang;
+                updatePlayAllButton();
+                return true;
+            }
+            return false;
+        }
+
+        // ================================================================
         // LOADING
         // ================================================================
         setTimeout(() => {
-            loadingScreen.classList.add('hidden');
+            const isOnboarded = checkOnboardingStatus();
+            if (!isOnboarded) {
+                loadingScreen.classList.add('hidden');
+            }
         }, 3000);
 
         // ================================================================
@@ -1278,6 +1302,9 @@
         }
 
         function finishOnboarding() {
+            // Simpan status ke localStorage
+            localStorage.setItem(ONBOARDING_KEY, 'true');
+            
             onboarding.classList.add('hidden');
             mainNav.style.display = 'flex';
             documentEl.classList.add('visible');
@@ -1290,6 +1317,11 @@
         // RENDER DOCUMENT - 11 TOPIK
         // ================================================================
         function renderDocument(lang) {
+            // Hentikan semua audio yang sedang diputar
+            stopAudio();
+            isPlayingAll = false;
+            audioQueue = [];
+            
             const data = CONTENT[lang];
             if (!data) return;
 
@@ -1506,6 +1538,7 @@
         console.log('AXION Neuralis — Profil & Roadmap (11 topics) loaded.');
         console.log('Audio files: tp1I.mp3 ~ tp11I.mp3 (ID) and tp1E.mp3 ~ tp11E.mp3 (EN)');
         console.log('Current language:', currentLang);
+        console.log('Onboarding status:', localStorage.getItem(ONBOARDING_KEY) === 'true' ? '✅ Selesai' : '❌ Belum');
     </script>
 
 </body>
