@@ -92,15 +92,17 @@ javascript
 
       const audioBtn = document.getElementById('audio-toggle-btn');
       if (audioBtn) {
-        audioBtn.addEventListener('click', () => handleAudioToggle(audioBtn));
+        this.audioClickHandler = () => handleAudioToggle(audioBtn);
+        audioBtn.addEventListener('click', this.audioClickHandler);
       }
 
       const closeTranscriptionBtn = document.getElementById('close-transcription');
       const transcriptionPanel = document.getElementById('transcription-panel');
       if (closeTranscriptionBtn && transcriptionPanel) {
-        closeTranscriptionBtn.addEventListener('click', () => {
+        this.closeClickHandler = () => {
           transcriptionPanel.style.display = 'none';
-        });
+        };
+        closeTranscriptionBtn.addEventListener('click', this.closeClickHandler);
       }
 
       setupFloatingConfetti();
@@ -108,6 +110,16 @@ javascript
 
     destroy() {
       console.log('AXN: Unloading Lebaran Template, releasing resources.');
+      const audioButton = document.getElementById('audio-toggle-btn');
+      if (audioButton && this.audioClickHandler) {
+        audioButton.removeEventListener('click', this.audioClickHandler);
+        this.audioClickHandler = null;
+      }
+      const closeButton = document.getElementById('close-transcription');
+      if (closeButton && this.closeClickHandler) {
+        closeButton.removeEventListener('click', this.closeClickHandler);
+        this.closeClickHandler = null;
+      }
       if (audioInstance) {
         audioInstance.pause();
         audioInstance = null;
@@ -117,6 +129,6 @@ javascript
   };
 
   if (typeof window !== 'undefined') {
-    window.activeTemplateLifecycle = lebaranTemplate;
+    window.AXION_TEMPLATE_LIFECYCLE = lebaranTemplate;
   }
 })();

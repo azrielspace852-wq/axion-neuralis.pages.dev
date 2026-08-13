@@ -232,16 +232,9 @@
   }
 
   // Register directly to AXION Global Scope for dynamic router accessibility
-  window.AXN_TEMPLATE_ACTIVE = {
+  window.AXION_TEMPLATE_LIFECYCLE = {
     init: init,
     destroy: destroy
   };
-
-  // Safe fallback self-initialization when running directly outside Router
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!window.AXN_ROUTER_ACTIVE) {
-      init();
-    }
-  });
 
 })();

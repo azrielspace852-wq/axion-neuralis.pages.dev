@@ -12,15 +12,15 @@
 
     bindLanguageSync() {
       // Determine language status from DOM or localStorage default
-      const currentLanguage = localStorage.getItem('axion_lang') || 'id';
+      const currentLanguage = window.AXION_CORE?.langSystem?.getCurrentLang() || document.documentElement.lang || 'id';
       this.applyLanguageElements(currentLanguage);
 
       // Listen to dynamic change events dispatched by corporate root shell
-      document.addEventListener('axion:lang-changed', (event) => {
-        if (event.detail && event.detail.lang) {
-          this.applyLanguageElements(event.detail.lang);
-        }
-      });
+      this._languageHandler = (event) => {
+        const lang = event.detail?.lang || event.detail?.language;
+        if (lang) this.applyLanguageElements(lang);
+      };
+      document.addEventListener('axion:lang-changed', this._languageHandler);
     },
 
     applyLanguageElements(lang) {
@@ -161,11 +161,13 @@
         audio.pause();
       }
       // Detach globally bound events
-      document.removeEventListener('axion:lang-changed', this.applyLanguageElements);
+      if (this._languageHandler) {
+        document.removeEventListener('axion:lang-changed', this._languageHandler);
+        this._languageHandler = null;
+      }
     }
   };
 
   // Safely assign the lifecycle interface to corporate global router
-  window.currentTemplateInstance = templateLifecycle;
-  templateLifecycle.init();
+  window.AXION_TEMPLATE_LIFECYCLE = templateLifecycle;
 })();

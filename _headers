@@ -4,7 +4,7 @@
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: no-referrer-when-downgrade
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: svg+xml; media-src 'self'; connect-src 'self' https://api.aladhan.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: svg+xml; media-src 'self'; connect-src 'self' https://api.aladhan.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' mailto:;
   Permissions-Policy: accelerometer=(), camera=(), geometric-sensors=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
   X-Powered-By: AXION Neuralis Infrastructure
 

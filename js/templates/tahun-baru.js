@@ -17,11 +17,11 @@
       const currentLanguage = localStorage.getItem('axion_lang') || 'id';
       this.applyLanguageElements(currentLanguage);
 
-      document.addEventListener('axion:lang-changed', (event) => {
-        if (event.detail && event.detail.lang) {
-          this.applyLanguageElements(event.detail.lang);
-        }
-      });
+      this._languageHandler = (event) => {
+        const lang = event.detail?.lang || event.detail?.language;
+        if (lang) this.applyLanguageElements(lang);
+      };
+      document.addEventListener('axion:lang-changed', this._languageHandler);
     },
 
     applyLanguageElements(lang) {
@@ -121,10 +121,12 @@
       if (countdownInterval) clearInterval(countdownInterval);
       if (simulatedDashboardInterval) clearInterval(simulatedDashboardInterval);
       
-      document.removeEventListener('axion:lang-changed', this.applyLanguageElements);
+      if (this._languageHandler) {
+        document.removeEventListener('axion:lang-changed', this._languageHandler);
+        this._languageHandler = null;
+      }
     }
   };
 
-  window.currentTemplateInstance = templateLifecycle;
-  templateLifecycle.init();
+  window.AXION_TEMPLATE_LIFECYCLE = templateLifecycle;
 })();

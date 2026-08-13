@@ -1,19 +1,19 @@
 /**
- * AXION Neuralis Core System - main.js
- * Version: 3.0.0
- * Date: August 12, 2026
- * Description: Robust Event-Based Router & Shell Controller
+ * AXION Neuralis Core System
+ * AXION BLUEPRINT v3.0.0 / BIBLE v2.2.0
+ * Global router, event resolver, lifecycle manager, language system and fallback.
  */
-
 (function () {
   'use strict';
 
   const FALLBACK_TEMPLATE = 'default';
   const TEMPLATE_TIMEOUT = 8000;
   const STORAGE_LANG_KEY = 'axn_lang';
-  
-  const appContainer = document.getElementById('app');
+
+  let appContainer = null;
   let currentActiveScript = null;
+  let currentLifecycle = null;
+  let renderSequence = 0;
 
   function isSafeTemplateName(name) {
     return typeof name === 'string' && /^[a-z0-9-]+$/i.test(name);
@@ -22,7 +22,9 @@
   function getConfiguredTemplates(config) {
     const configured = Array.isArray(config?.templates) ? config.templates : [];
     return new Set(
-      configured.filter(isSafeTemplateName).concat(FALLBACK_TEMPLATE)
+      configured
+        .filter(isSafeTemplateName)
+        .concat(FALLBACK_TEMPLATE)
     );
   }
 
@@ -39,17 +41,25 @@
   async function loadEventsConfig() {
     try {
       const response = await fetchWithTimeout('/data/events.json');
-      if (!response.ok) throw new Error('Gagal memuat events.json');
+      if (!response.ok) throw new Error(`events.json HTTP ${response.status}`);
+
       const config = await response.json();
       const templates = getConfiguredTemplates(config);
+
       return {
-        masehi: config?.masehi && typeof config.masehi === 'object' ? config.masehi : {},
-        hijriah: config?.hijriah && typeof config.hijriah === 'object' ? config.hijriah : {},
-        default: templates.has(config?.default) ? config.default : FALLBACK_TEMPLATE,
+        masehi: config?.masehi && typeof config.masehi === 'object'
+          ? config.masehi
+          : {},
+        hijriah: config?.hijriah && typeof config.hijriah === 'object'
+          ? config.hijriah
+          : {},
+        default: templates.has(config?.default)
+          ? config.default
+          : FALLBACK_TEMPLATE,
         templates: [...templates]
       };
     } catch (error) {
-      console.warn('Config gagal dimuat. Menggunakan fallback:', error);
+      console.warn('[AXION Router] Config gagal dimuat. Fallback default digunakan.', error);
       return {
         masehi: {},
         hijriah: {},
@@ -61,185 +71,278 @@
 
   async function getHijriKey(date) {
     try {
-      const y = date.getFullYear();
-      const m = date.getMonth() + 1;
       const d = date.getDate();
+      const m = date.getMonth() + 1;
+      const y = date.getFullYear();
       const url = `https://api.aladhan.com/v1/gToH?date=${d}-${m}-${y}`;
+
       const response = await fetchWithTimeout(url);
-      if (!response.ok) throw new Error('API Hijriah tidak merespons');
+      if (!response.ok) throw new Error(`Hijri API HTTP ${response.status}`);
+
       const data = await response.json();
       const hijri = data?.data?.hijri;
       if (!hijri?.day || !hijri?.month?.number) return null;
-      return `${parseInt(hijri.day, 10)}-${parseInt(hijri.month.number, 10)}`;
+
+      const day = Number.parseInt(hijri.day, 10);
+      const month = Number.parseInt(hijri.month.number, 10);
+      if (!Number.isInteger(day) || !Number.isInteger(month)) return null;
+
+      return `${day}-${month}`;
     } catch (error) {
-      console.warn('Tanggal Hijriah tidak tersedia:', error.message);
+      console.warn('[AXION Router] Tanggal Hijriah tidak tersedia:', error.message);
       return null;
     }
+  }
+
+  function waitForStylesheet(link) {
+    return new Promise((resolve, reject) => {
+      if (link.sheet) {
+        resolve();
+        return;
+      }
+      const onLoad = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = () => {
+        cleanup();
+        reject(new Error(`CSS template gagal dimuat: ${link.href}`));
+      };
+      const cleanup = () => {
+        link.removeEventListener('load', onLoad);
+        link.removeEventListener('error', onError);
+      };
+      link.addEventListener('load', onLoad, { once: true });
+      link.addEventListener('error', onError, { once: true });
+    });
+  }
+
+  function resolveTemplateLifecycle(templateName) {
+    const lifecycle = window.AXION_TEMPLATE_LIFECYCLE;
+    if (!lifecycle || typeof lifecycle.init !== 'function') {
+      throw new Error(`Lifecycle template "${templateName}" tidak terdaftar.`);
+    }
+    return lifecycle;
   }
 
   const router = {
     currentTemplate: FALLBACK_TEMPLATE,
     config: null,
-    
+
     async init() {
+      appContainer = document.getElementById('app');
+
+      // Language is global and must work on both routed and static pages.
+      langSystem.init();
+
       if (!appContainer) {
-        console.error('Element #app tidak ditemukan!');
         return;
       }
+
       this.config = await loadEventsConfig();
-      langSystem.init();
-      await this.resolveAndRender();
       this.bindEvents();
+      await this.resolveAndRender();
     },
 
     bindEvents() {
-      window.addEventListener('popstate', () => this.resolveAndRender());
+      window.addEventListener('popstate', () => {
+        if (appContainer) {
+          this.resolveAndRender();
+        }
+      });
     },
 
     async resolveAndRender() {
+      const token = ++renderSequence;
       this.showLoader();
-      const urlParams = new URLSearchParams(window.location.search);
-      const preview = urlParams.get('template');
-      let resolvedTemplate = FALLBACK_TEMPLATE;
 
-      if (preview && this.config.templates.includes(preview) && isSafeTemplateName(preview)) {
-        resolvedTemplate = preview;
-        console.log(`[Router] Preview Mode Active: ${resolvedTemplate}`);
-      } else {
-        const today = new Date();
-        const masehiKey = `${today.getDate()}-${today.getMonth() + 1}`;
-        
-        if (this.config.masehi[masehiKey]) {
-          resolvedTemplate = this.config.masehi[masehiKey];
-          console.log(`[Router] Event Masehi Detected: ${resolvedTemplate}`);
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const preview = params.get('template');
+        const allowedTemplates = getConfiguredTemplates(this.config || {});
+
+        let resolvedTemplate = FALLBACK_TEMPLATE;
+
+        if (
+          preview &&
+          isSafeTemplateName(preview) &&
+          allowedTemplates.has(preview)
+        ) {
+          resolvedTemplate = preview;
         } else {
-          const hijriKey = await getHijriKey(today);
-          if (hijriKey && this.config.hijriah[hijriKey]) {
-            resolvedTemplate = this.config.hijriah[hijriKey];
-            console.log(`[Router] Event Hijriah Detected: ${resolvedTemplate}`);
+          const today = new Date();
+          const masehiKey = `${today.getDate()}-${today.getMonth() + 1}`;
+          const masehiTemplate = this.config?.masehi?.[masehiKey];
+
+          if (
+            isSafeTemplateName(masehiTemplate) &&
+            allowedTemplates.has(masehiTemplate)
+          ) {
+            resolvedTemplate = masehiTemplate;
           } else {
-            resolvedTemplate = this.config.default;
-            console.log(`[Router] No Event Active. Defaulting to: ${resolvedTemplate}`);
+            const hijriKey = await getHijriKey(today);
+            const hijriTemplate = hijriKey
+              ? this.config?.hijriah?.[hijriKey]
+              : null;
+
+            if (
+              isSafeTemplateName(hijriTemplate) &&
+              allowedTemplates.has(hijriTemplate)
+            ) {
+              resolvedTemplate = hijriTemplate;
+            } else {
+              resolvedTemplate = this.config?.default || FALLBACK_TEMPLATE;
+            }
           }
         }
-      }
 
-      if (!this.config.templates.includes(resolvedTemplate)) {
-        resolvedTemplate = FALLBACK_TEMPLATE;
-      }
+        if (!allowedTemplates.has(resolvedTemplate)) {
+          resolvedTemplate = FALLBACK_TEMPLATE;
+        }
 
-      await this.loadTemplate(resolvedTemplate);
-    },
-
-    async loadTemplate(templateName) {
-      try {
-        const htmlPath = `/templates/${templateName}/index.html`;
-        const cssPath = `/css/templates/${templateName}.css`;
-        const jsPath = `/js/templates/${templateName}.js`;
-
-        const response = await fetchWithTimeout(htmlPath);
-        if (!response.ok) throw new Error(`HTML template tidak ditemukan: ${htmlPath}`);
-        const htmlContent = await response.text();
-
-        this.cleanupResources();
-
-        this.injectCSS(templateName, cssPath);
-        appContainer.textContent = htmlContent;
-        this.currentTemplate = templateName;
-
-        this.updateDocumentTitle(templateName);
-        langSystem.translateDOM();
-
-        await this.injectJS(templateName, jsPath);
-
-        const loadedEvent = new CustomEvent('axion:template-loaded', {
-          detail: { template: templateName }
-        });
-        window.dispatchEvent(loadedEvent);
-
+        await this.loadTemplate(resolvedTemplate, token);
       } catch (error) {
-        console.error(`Gagal memuat template ${templateName}:`, error);
-        if (templateName !== FALLBACK_TEMPLATE) {
-          console.warn('Melakukan fallback otomatis ke default...');
-          await this.loadTemplate(FALLBACK_TEMPLATE);
-        } else {
-          this.renderCriticalError();
+        console.error('[AXION Router] Resolution error:', error);
+        if (token === renderSequence) {
+          await this.loadTemplate(FALLBACK_TEMPLATE, token, true);
         }
       } finally {
-        this.hideLoader();
+        if (token === renderSequence) {
+          this.hideLoader();
+        }
       }
     },
 
-    injectCSS(templateName, href) {
-      let linkElement = document.getElementById('axion-template-css');
-      if (linkElement) {
-        linkElement.href = href;
-      } else {
-        linkElement = document.createElement('link');
-        linkElement.id = 'axion-template-css';
-        linkElement.rel = 'stylesheet';
-        linkElement.href = href;
-        document.head.appendChild(linkElement);
+    async loadTemplate(templateName, token, isFallbackAttempt = false) {
+      if (token !== renderSequence || !appContainer) return;
+
+      const allowedTemplates = getConfiguredTemplates(this.config || {});
+      const safeName = allowedTemplates.has(templateName)
+        ? templateName
+        : FALLBACK_TEMPLATE;
+
+      try {
+        const htmlPath = `/templates/${safeName}/index.html`;
+        const cssPath = `/css/templates/${safeName}.css`;
+        const jsPath = `/js/templates/${safeName}.js`;
+
+        const htmlResponse = await fetchWithTimeout(htmlPath);
+        if (!htmlResponse.ok) {
+          throw new Error(`HTML template tidak ditemukan: ${htmlPath}`);
+        }
+        const htmlContent = await htmlResponse.text();
+
+        if (token !== renderSequence) return;
+
+        await this.cleanupResources();
+
+        // Blueprint order: HTML → CSS → JS → init → ready.
+        appContainer.innerHTML = htmlContent;
+
+        const cssLink = document.createElement('link');
+        cssLink.id = 'axion-template-css';
+        cssLink.rel = 'stylesheet';
+        cssLink.href = cssPath;
+        cssLink.dataset.templateCss = safeName;
+        document.head.appendChild(cssLink);
+        await waitForStylesheet(cssLink);
+
+        if (token !== renderSequence) return;
+
+        await this.injectJS(safeName, jsPath);
+
+        if (token !== renderSequence) return;
+
+        const lifecycle = resolveTemplateLifecycle(safeName);
+        await Promise.resolve(lifecycle.init());
+        currentLifecycle = lifecycle;
+        this.currentTemplate = safeName;
+        this.updateDocumentTitle(safeName);
+        langSystem.translateDOM();
+
+        window.dispatchEvent(new CustomEvent('axion:template-loaded', {
+          detail: { name: safeName, template: safeName }
+        }));
+      } catch (error) {
+        console.error(`[AXION Router] Gagal memuat template "${safeName}":`, error);
+
+        if (token !== renderSequence) return;
+
+        if (!isFallbackAttempt && safeName !== FALLBACK_TEMPLATE) {
+          await this.loadTemplate(FALLBACK_TEMPLATE, token, true);
+        } else {
+          await this.cleanupResources();
+          this.renderCriticalError();
+        }
       }
     },
 
     async injectJS(templateName, src) {
-      return new Promise((resolve) => {
-        const scriptId = 'axion-template-js';
-        let scriptElement = document.getElementById(scriptId);
-        if (scriptElement) {
-          scriptElement.remove();
-        }
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.id = 'axion-template-js';
+        script.src = `${src}?v=${Date.now()}`;
+        script.async = false;
+        script.dataset.templateJs = templateName;
 
-        scriptElement = document.createElement('script');
-        scriptElement.id = scriptId;
-        scriptElement.type = 'module';
-        scriptElement.src = `${src}?v=${Date.now()}`;
-        
-        scriptElement.onload = () => {
-          console.log(`[Router] Script template ${templateName} berhasil dieksekusi.`);
+        script.addEventListener('load', () => {
+          currentActiveScript = script;
           resolve();
-        };
+        }, { once: true });
 
-        scriptElement.onerror = (err) => {
-          console.warn(`[Router] Gagal mengunduh modul JS untuk ${templateName}, menjalankan inline fallback if available.`, err);
-          resolve();
-        };
+        script.addEventListener('error', () => {
+          script.remove();
+          reject(new Error(`JS template gagal dimuat: ${src}`));
+        }, { once: true });
 
-        document.body.appendChild(scriptElement);
-        currentActiveScript = scriptElement;
+        document.body.appendChild(script);
       });
     },
 
-    cleanupResources() {
+    async cleanupResources() {
+      if (currentLifecycle && typeof currentLifecycle.destroy === 'function') {
+        try {
+          await Promise.resolve(currentLifecycle.destroy());
+        } catch (error) {
+          console.warn('[AXION Router] Template destroy() gagal:', error);
+        }
+      }
+
+      currentLifecycle = null;
+
       if (currentActiveScript) {
         currentActiveScript.remove();
         currentActiveScript = null;
       }
-      const eventStyles = document.querySelectorAll('style[data-event-dynamic]');
-      eventStyles.forEach(style => style.remove());
+
+      document.querySelectorAll('link[data-template-css]').forEach((link) => {
+        link.remove();
+      });
+
+      document.querySelectorAll('style[data-event-dynamic]').forEach((style) => {
+        style.remove();
+      });
+
+      delete window.AXION_TEMPLATE_LIFECYCLE;
+      delete window.currentTemplateInstance;
+      delete window.activeTemplateLifecycle;
+      delete window.AXN_TEMPLATE_ACTIVE;
     },
 
     updateDocumentTitle(templateName) {
-      const activeLang = langSystem.getCurrentLang();
-      const baseTitle = "AXION Neuralis";
-      let suffix = "";
-
+      const lang = langSystem.getCurrentLang();
       const titleMap = {
-        'default': { id: 'Corporate Intelligent', en: 'Corporate Intelligent' },
-        'tahun-baru': { id: 'Selamat Tahun Baru Masehi', en: 'Happy New Year' },
-        '17-agustus': { id: 'Hari Kemerdekaan RI', en: 'Indonesia Independence Day' },
-        'natal': { id: 'Selamat Hari Natal', en: 'Merry Christmas' },
-        'lebaran': { id: 'Selamat Idul Fitri', en: 'Eid Mubarak' },
-        'idul-adha': { id: 'Hari Raya Idul Adha', en: 'Eid Al-Adha' },
-        'tahun-baru-islam': { id: 'Tahun Baru Hijriah', en: 'Islamic New Year' }
+        default: { id: 'Mode Standar', en: 'Standard Mode' },
+        'tahun-baru': { id: 'Tahun Baru Masehi', en: 'New Year' },
+        '17-agustus': { id: 'Hari Kemerdekaan Republik Indonesia', en: 'Indonesia Independence Day' },
+        lebaran: { id: 'Idul Fitri', en: 'Eid al-Fitr' },
+        natal: { id: 'Natal', en: 'Christmas' },
+        'idul-adha': { id: 'Idul Adha', en: 'Eid al-Adha' },
+        'tahun-baru-islam': { id: 'Tahun Baru Islam', en: 'Islamic New Year' }
       };
 
-      if (titleMap[templateName]) {
-        suffix = titleMap[templateName][activeLang] || titleMap[templateName]['id'];
-      }
-
-      document.title = suffix ? `${baseTitle} — ${suffix}` : baseTitle;
+      const suffix = titleMap[templateName]?.[lang] || titleMap.default[lang];
+      document.title = `AXION Neuralis — ${suffix}`;
     },
 
     showLoader() {
@@ -248,27 +351,44 @@
         loader = document.createElement('div');
         loader.id = 'global-loader';
         loader.className = 'axn-loader';
-        loader.textContent = '<div class="axn-loader-spinner"></div>';
+        loader.setAttribute('role', 'status');
+        loader.setAttribute('aria-live', 'polite');
+        loader.setAttribute('aria-label', 'Loading AXION Neuralis');
+
+        const spinner = document.createElement('div');
+        spinner.className = 'axn-loader-spinner';
+        spinner.setAttribute('aria-hidden', 'true');
+        loader.appendChild(spinner);
+
         document.body.appendChild(loader);
       }
       loader.classList.add('is-visible');
     },
 
     hideLoader() {
-      const loader = document.getElementById('global-loader');
-      if (loader) {
-        loader.classList.remove('is-visible');
-      }
+      document.getElementById('global-loader')?.classList.remove('is-visible');
     },
 
     renderCriticalError() {
-      appContainer.textContent = `
-        <main class="critical-error-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; padding: 24px; text-align: center;">
-          <h1 style="color: #2d2d5e; font-size: 2rem; margin-bottom: 16px;">System Error</h1>
-          <p style="color: #6b6b8a; max-width: 480px; margin-bottom: 24px;">Core System gagal memuat template halaman dasar. Silakan segarkan halaman atau hubungi Administrator AXION.</p>
-          <button onclick="window.location.reload()" style="background-color: #2d2d5e; color: #ffffff; border: none; padding: 12px 24px; border-radius: 4px; font-weight: 600; cursor: pointer;">Segarkan Halaman</button>
-        </main>
-      `;
+      appContainer.replaceChildren();
+
+      const section = document.createElement('section');
+      section.className = 'critical-error-container';
+      section.setAttribute('role', 'alert');
+      section.innerHTML = '';
+
+      const heading = document.createElement('h1');
+      heading.textContent = 'AXION Neuralis';
+      const message = document.createElement('p');
+      message.textContent = 'Sistem gagal memuat template halaman dasar. Silakan muat ulang halaman.';
+      const reload = document.createElement('button');
+      reload.type = 'button';
+      reload.className = 'button button-primary';
+      reload.textContent = 'Muat Ulang';
+      reload.addEventListener('click', () => window.location.reload());
+
+      section.append(heading, message, reload);
+      appContainer.appendChild(section);
     }
   };
 
@@ -280,21 +400,36 @@
       if (saved === 'id' || saved === 'en') {
         this.currentLang = saved;
       } else {
-        const browserLang = navigator.language || navigator.userLanguage;
-        this.currentLang = browserLang.startsWith('id') ? 'id' : 'en';
+        const browserLang = navigator.language || navigator.userLanguage || 'id';
+        this.currentLang = browserLang.toLowerCase().startsWith('id') ? 'id' : 'en';
       }
       this.updateHtmlLang();
       this.bindControls();
+      this.translateDOM();
     },
 
     bindControls() {
-      document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('[data-lang-toggle]');
-        if (toggleBtn) {
-          const targetLang = toggleBtn.getAttribute('data-lang-toggle');
-          this.setLang(targetLang);
-        }
+      if (this._bound) return;
+
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-lang-toggle], [data-language-toggle], #language-selector, #lang-switch, #language-toggle');
+        if (!target) return;
+
+        const explicit = target.getAttribute('data-lang-toggle');
+        const language = explicit === 'id' || explicit === 'en'
+          ? explicit
+          : (this.currentLang === 'id' ? 'en' : 'id');
+
+        this.setLang(language);
       });
+
+      document.addEventListener('change', (event) => {
+        const target = event.target.closest('#language-select');
+        if (!target) return;
+        this.setLang(target.value);
+      });
+
+      this._bound = true;
     },
 
     setLang(lang) {
@@ -303,12 +438,14 @@
       localStorage.setItem(STORAGE_LANG_KEY, lang);
       this.updateHtmlLang();
       this.translateDOM();
-      router.updateDocumentTitle(router.currentTemplate);
-      
-      const langEvent = new CustomEvent('axion:lang-changed', {
-        detail: { language: this.currentLang }
-      });
-      window.dispatchEvent(langEvent);
+
+      if (router.currentTemplate) {
+        router.updateDocumentTitle(router.currentTemplate);
+      }
+
+      window.dispatchEvent(new CustomEvent('axion:lang-changed', {
+        detail: { lang: lang, language: lang }
+      }));
     },
 
     getCurrentLang() {
@@ -320,40 +457,39 @@
     },
 
     translateDOM() {
-      const elements = document.querySelectorAll('[data-id], [data-en]');
-      elements.forEach(el => {
-        const translation = el.getAttribute(`data-${this.currentLang}`);
-        if (translation !== null) {
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            if (el.hasAttribute('placeholder')) {
-              el.setAttribute('placeholder', translation);
-            }
-          } else {
-            el.textContent = translation;
-          }
+      const active = this.currentLang;
+
+      document.querySelectorAll('.lang-id, [lang="id"], [data-lang="id"]').forEach((el) => {
+        if (!el.matches('html')) el.hidden = active !== 'id';
+      });
+      document.querySelectorAll('.lang-en, [lang="en"], [data-lang="en"]').forEach((el) => {
+        if (!el.matches('html')) el.hidden = active !== 'en';
+      });
+
+      document.querySelectorAll('[data-id], [data-en]').forEach((el) => {
+        const translation = el.getAttribute(`data-${active}`);
+        if (translation === null) return;
+
+        if (el.matches('input, textarea')) {
+          el.placeholder = translation;
+        } else if (el.matches('img')) {
+          el.alt = translation;
+        } else {
+          el.textContent = translation;
         }
       });
 
-      const langButtons = document.querySelectorAll('[data-lang-toggle]');
-      langButtons.forEach(btn => {
-        if (btn.getAttribute('data-lang-toggle') === this.currentLang) {
-          btn.classList.add('is-active');
-          btn.setAttribute('aria-pressed', 'true');
-        } else {
-          btn.classList.remove('is-active');
-          btn.setAttribute('aria-pressed', 'false');
-        }
+      document.querySelectorAll('[data-lang-toggle]').forEach((btn) => {
+        const value = btn.getAttribute('data-lang-toggle');
+        btn.classList.toggle('is-active', value === active);
+        btn.setAttribute('aria-pressed', value === active ? 'true' : 'false');
       });
     }
   };
 
+  window.AXION_CORE = { router, langSystem };
+
   document.addEventListener('DOMContentLoaded', () => {
     router.init();
   });
-
-  window.AXION_CORE = {
-    router,
-    langSystem
-  };
-
 })();

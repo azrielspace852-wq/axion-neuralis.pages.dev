@@ -92,15 +92,17 @@ javascript
 
       const audioBtn = document.getElementById('adha-audio-toggle');
       if (audioBtn) {
-        audioBtn.addEventListener('click', () => handleAudioToggle(audioBtn));
+        this.audioClickHandler = () => handleAudioToggle(audioBtn);
+        audioBtn.addEventListener('click', this.audioClickHandler);
       }
 
       const closeTranscriptionBtn = document.getElementById('close-adha-transcription');
       const transcriptionPanel = document.getElementById('adha-transcription');
       if (closeTranscriptionBtn && transcriptionPanel) {
-        closeTranscriptionBtn.addEventListener('click', () => {
+        this.closeClickHandler = () => {
           transcriptionPanel.style.display = 'none';
-        });
+        };
+        closeTranscriptionBtn.addEventListener('click', this.closeClickHandler);
       }
 
       renderFloatingGeometricSymmetry();
@@ -108,6 +110,16 @@ javascript
 
     destroy() {
       console.log('AXN: Releasing resources allocated for Idul Adha Template.');
+      const audioButton = document.getElementById('adha-audio-toggle');
+      if (audioButton && this.audioClickHandler) {
+        audioButton.removeEventListener('click', this.audioClickHandler);
+        this.audioClickHandler = null;
+      }
+      const closeButton = document.getElementById('close-adha-transcription');
+      if (closeButton && this.closeClickHandler) {
+        closeButton.removeEventListener('click', this.closeClickHandler);
+        this.closeClickHandler = null;
+      }
       if (adhaAudio) {
         adhaAudio.pause();
         adhaAudio = null;
@@ -117,6 +129,6 @@ javascript
   };
 
   if (typeof window !== 'undefined') {
-    window.activeTemplateLifecycle = idulAdhaTemplate;
+    window.AXION_TEMPLATE_LIFECYCLE = idulAdhaTemplate;
   }
 })();
