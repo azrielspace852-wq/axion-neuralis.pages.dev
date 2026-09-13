@@ -2,10 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>AXION — Public Documentation</title>
-  <meta name="description" content="Portal dokumentasi publik AXION: prinsip perusahaan, postur teknis-keamanan, dan arah strategis. Dokumen publik menjadi sumber utama, dengan lapisan konteks dan navigasi untuk pembaca." />
-  <meta name="theme-color" content="#070a12" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dokumentasi Publik — AXION Neuralis</title>
+  <meta name="description" content="Dokumentasi publik AXION Neuralis: Company Bible, Blueprint, dan Roadmap. Prinsip tata kelola, postur keamanan, dan arah strategis." />
+  <meta property="og:title" content="Dokumentasi Publik — AXION Neuralis" />
+  <meta property="og:description" content="Company Bible, Blueprint, dan Roadmap versi publik AXION Neuralis." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://axion-neuralis.axn.cc.cd/" />
+  <meta name="theme-color" content="#0b0d14" />
   <link rel="canonical" href="https://axion-neuralis.axn.cc.cd/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,119 +17,315 @@
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-<a class="skip-link" href="#main">Langsung ke konten</a>
-<header class="site-header">
-  <nav class="navbar" aria-label="Navigasi utama">
-    <a class="brand" href="/" aria-label="AXION Neuralis — beranda">
-      <span class="brand-mark" aria-hidden="true">AX</span>
-      <span class="brand-text"><small>PUBLIC DOCUMENTATION</small><span>AXION Neuralis</span></span>
-    </a>
-    <div class="nav-actions">
-      <a class="nav-link" href="#documentation">Dokumentasi</a>
-      <a class="nav-link" href="#source">Sumber</a>
+  <a class="skip-link" href="#main">Langsung ke konten</a>
+
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="/" aria-label="AXION Neuralis — Beranda">
+        <span class="brand-mark" aria-hidden="true">AX</span>
+        <span class="brand-text">
+          <span>AXION Neuralis</span>
+          <small>Dokumentasi Publik</small>
+        </span>
+      </a>
+
+      <ul class="nav-desktop">
+        <li><a href="#bible" data-nav="bible" class="active">Company Bible</a></li>
+        <li><a href="#blueprint" data-nav="blueprint">Blueprint</a></li>
+        <li><a href="#roadmap" data-nav="roadmap">Roadmap</a></li>
+      </ul>
+
+      <div class="header-actions">
+        <button type="button" class="btn-icon menu-toggle" id="menu-toggle" aria-label="Buka menu navigasi" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Navigasi dokumen">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Dokumen</div>
+        <ul class="sidebar-nav">
+          <li>
+            <a href="#bible" data-nav="bible" class="active">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              Company Bible
+            </a>
+          </li>
+          <li>
+            <a href="#blueprint" data-nav="blueprint">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              Blueprint
+            </a>
+          </li>
+          <li>
+            <a href="#roadmap" data-nav="roadmap">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+              Roadmap
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-section" id="toc-section" hidden>
+        <div class="sidebar-label">Di halaman ini</div>
+        <ul class="sidebar-nav" id="toc-list"></ul>
+      </div>
+
+      <div class="sidebar-meta">
+        <div>v1.0.0-Public</div>
+        <div style="margin-top:6px">
+          <a href="https://axion-neuralis.axn.cc.cd">Pages</a> ·
+          <a href="https://axion-neuralis-workers.axn.cc.cd">Workers</a>
+        </div>
+      </div>
+    </aside>
+
+    <main id="main" class="main-content">
+      <!-- BIBLE -->
+      <section id="panel-bible" class="panel" data-panel="bible" hidden>
+        <header class="doc-hero">
+          <div class="eyebrow">Prinsip &amp; Tata Kelola</div>
+          <h1>Company Bible</h1>
+          <p class="lead">Prinsip non-negotiable yang memandu AXION sebagai perusahaan — ringkasan publik dari Company Bible internal.</p>
+          <div class="meta-row">
+            <span class="badge accent">v1.0.0-Public</span>
+            <span class="badge">Public Summary</span>
+            <span class="badge cyan">TTS · Charon</span>
+          </div>
+        </header>
+
+        <div class="doc-toolbar">
+          <button type="button" class="tts-btn" data-tts="content-bible" aria-label="Dengarkan Company Bible">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span class="tts-label">Dengarkan</span>
+          </button>
+          <span class="tts-hint">Suara Charon · nada santai · jeda natural</span>
+        </div>
+
+        <div class="callout">
+          <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div><strong>Ringkasan publik.</strong> Detail operasional, teknis, ekonomi, dan keputusan internal sengaja dihilangkan. Dokumen ini disusun dari sumber publik resmi sebagai dokumentasi yang mudah dibaca.</div>
+        </div>
+
+        <article id="content-bible" class="doc-body">
+          <div class="doc-loading">Memuat dokumen…</div>
+        </article>
+      </section>
+
+      <!-- BLUEPRINT -->
+      <section id="panel-blueprint" class="panel" data-panel="blueprint" hidden>
+        <header class="doc-hero">
+          <div class="eyebrow">Keamanan &amp; Postur Teknis</div>
+          <h1>Blueprint</h1>
+          <p class="lead">Filosofi keamanan dan postur teknis AXION pada tingkat konseptual — ringkasan publik dari Company Blueprint.</p>
+          <div class="meta-row">
+            <span class="badge accent">v1.0.0-Public</span>
+            <span class="badge">Public Summary</span>
+            <span class="badge cyan">TTS · Charon</span>
+          </div>
+        </header>
+
+        <div class="doc-toolbar">
+          <button type="button" class="tts-btn" data-tts="content-blueprint" aria-label="Dengarkan Blueprint">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span class="tts-label">Dengarkan</span>
+          </button>
+          <span class="tts-hint">Suara Charon · nada santai · jeda natural</span>
+        </div>
+
+        <div class="callout">
+          <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div><strong>Ringkasan publik.</strong> Spesifikasi teknis, parameter kriptografi, rate-limit, dan kontrol operasional internal tidak dipublikasikan. Konten disusun ulang sebagai dokumentasi yang merujuk pada sumber publik.</div>
+        </div>
+
+        <article id="content-blueprint" class="doc-body">
+          <div class="doc-loading">Memuat dokumen…</div>
+        </article>
+      </section>
+
+      <!-- ROADMAP -->
+      <section id="panel-roadmap" class="panel" data-panel="roadmap" hidden>
+        <header class="doc-hero">
+          <div class="eyebrow">Arah Strategis</div>
+          <h1>Roadmap</h1>
+          <p class="lead">Arah strategis dan disiplin target AXION — ringkasan publik dari Company Roadmap.</p>
+          <div class="meta-row">
+            <span class="badge accent">v1.0.0-Public</span>
+            <span class="badge">Public Summary</span>
+            <span class="badge cyan">TTS · Charon</span>
+          </div>
+        </header>
+
+        <div class="doc-toolbar">
+          <button type="button" class="tts-btn" data-tts="content-roadmap" aria-label="Dengarkan Roadmap">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span class="tts-label">Dengarkan</span>
+          </button>
+          <span class="tts-hint">Suara Charon · nada santai · jeda natural</span>
+        </div>
+
+        <div class="callout">
+          <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div><strong>Ringkasan publik.</strong> Angka kapasitas, timeline implementasi, risk register detail, dan rencana sumber daya tetap internal. Disusun sebagai dokumentasi yang merujuk pada dokumen publik resmi.</div>
+        </div>
+
+        <article id="content-roadmap" class="doc-body">
+          <div class="doc-loading">Memuat dokumen…</div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div>© 2026 AXION Neuralis · Dokumentasi publik v1.0</div>
+    <div class="footer-meta">
+      Pages: <a href="https://axion-neuralis.axn.cc.cd">axion-neuralis.axn.cc.cd</a>
+      ·
+      Workers: <a href="https://axion-neuralis-workers.axn.cc.cd">axion-neuralis-workers.axn.cc.cd</a>
     </div>
-  </nav>
-</header>
+  </footer>
 
-<main id="main" class="page-shell">
-  <section class="hero" aria-labelledby="hero-title">
-    <p class="eyebrow">Public knowledge portal · v1.0</p>
-    <h1 id="hero-title">Dokumentasi yang menjelaskan AXION, bukan sekadar menyalin dokumen.</h1>
-    <p class="hero-lead">Dokumen publik perusahaan menjadi sumber utama. Situs ini menambahkan struktur baca, konteks, metadata, navigasi bagian, dan representasi visual agar prinsip, postur teknis, dan arah strategis dapat dipahami dengan cepat di berbagai ukuran layar.</p>
-    <div class="hero-meta" aria-label="Metadata dokumentasi">
-      <span class="pill"><span class="pill-dot"></span> Sumber publik terkurasi</span>
-      <span class="pill">3 dokumen inti</span>
-      <span class="pill">Responsive · mobile-first</span>
-      <span class="pill">TTS tersedia</span>
-    </div>
-  </section>
+  <script src="/js/tts.js"></script>
+  <script>
+    (function () {
+      var panels = {
+        bible: document.getElementById('panel-bible'),
+        blueprint: document.getElementById('panel-blueprint'),
+        roadmap: document.getElementById('panel-roadmap'),
+      };
+      var contents = {
+        bible: document.getElementById('content-bible'),
+        blueprint: document.getElementById('content-blueprint'),
+        roadmap: document.getElementById('content-roadmap'),
+      };
+      var loaded = {};
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      var menuBtn = document.getElementById('menu-toggle');
+      var tocSection = document.getElementById('toc-section');
+      var tocList = document.getElementById('toc-list');
 
-  <section class="section-grid" id="source" aria-label="Model dokumentasi">
-    <article class="info-card">
-      <h2>Satu sumber, dua lapisan</h2>
-      <p><strong>Source layer</strong> mempertahankan isi dokumen publik sebagai referensi. <strong>Documentation layer</strong> menyusun ulang pengalaman membaca tanpa mengubah substansi sumber.</p>
-    </article>
-    <article class="info-card source-card">
-      <div class="source-label">Source of documentation</div>
-      <h3>PUBLIC-COMPANY-*.md</h3>
-      <p>Versi publik resmi diperlakukan sebagai source-of-truth untuk isi yang diterbitkan.</p>
-    </article>
-  </section>
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
 
-  <section id="documentation" class="doc-switcher-wrap" aria-label="Pilih dokumen">
-    <div class="doc-switcher" role="tablist">
-      <button class="doc-tab active" id="tab-bible" type="button" role="tab" aria-selected="true" aria-controls="panel-bible" data-panel="bible"><strong>Company Bible</strong><span>Prinsip &amp; governance</span></button>
-      <button class="doc-tab" id="tab-blueprint" type="button" role="tab" aria-selected="false" aria-controls="panel-blueprint" data-panel="blueprint"><strong>Company Blueprint</strong><span>Security &amp; technical posture</span></button>
-      <button class="doc-tab" id="tab-roadmap" type="button" role="tab" aria-selected="false" aria-controls="panel-roadmap" data-panel="roadmap"><strong>Company Roadmap</strong><span>Strategic direction</span></button>
-    </div>
-  </section>
+      function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        menuBtn.setAttribute('aria-expanded', 'true');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
 
-  <section id="panel-bible" class="panel active" role="tabpanel" aria-labelledby="tab-bible">
-    <div class="doc-layout"><article class="doc-shell">
-      <div class="doc-topbar"><div class="doc-topbar-left"><span class="doc-type">Company Bible</span><span class="doc-status">Public Summary</span></div><button class="tts-btn" type="button" data-tts="content-bible"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span class="tts-label">Dengarkan</span></button></div>
-      <div class="doc-prologue"><div class="doc-prologue-grid"><div class="meta-box"><span>Fokus</span><strong>Prinsip permanen &amp; governance</strong></div><div class="meta-box"><span>Public scope</span><strong>High-level company rules</strong></div></div><div class="callout"><strong>Cara membaca:</strong> halaman ini memberi konteks dan navigasi; isi dokumen publik tetap menjadi rujukan substantif.</div></div>
-      <article id="content-bible" class="doc-body"><div class="doc-loading">Memuat dokumentasi…</div></article>
-    </article><aside class="doc-toc" data-toc-for="content-bible"><div class="toc-label">Di halaman ini</div><div class="toc-list"></div></aside></div>
-  </section>
+      menuBtn.addEventListener('click', function () {
+        if (sidebar.classList.contains('open')) closeSidebar();
+        else openSidebar();
+      });
+      overlay.addEventListener('click', closeSidebar);
 
-  <section id="panel-blueprint" class="panel" role="tabpanel" aria-labelledby="tab-blueprint" hidden>
-    <div class="doc-layout"><article class="doc-shell">
-      <div class="doc-topbar"><div class="doc-topbar-left"><span class="doc-type">Company Blueprint</span><span class="doc-status">Public Summary</span></div><button class="tts-btn" type="button" data-tts="content-blueprint"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span class="tts-label">Dengarkan</span></button></div>
-      <div class="doc-prologue"><div class="doc-prologue-grid"><div class="meta-box"><span>Fokus</span><strong>Security &amp; technical posture</strong></div><div class="meta-box"><span>Public scope</span><strong>Conceptual, non-implementable</strong></div></div><div class="callout"><strong>Boundary:</strong> parameter kriptografi, rate limits, vendor details, dan kontrol operasional tetap berada di luar versi publik.</div></div>
-      <article id="content-blueprint" class="doc-body"><div class="doc-loading">Memuat dokumentasi…</div></article>
-    </article><aside class="doc-toc" data-toc-for="content-blueprint"><div class="toc-label">Di halaman ini</div><div class="toc-list"></div></aside></div>
-  </section>
+      function loadDoc(key, path) {
+        if (loaded[key]) return Promise.resolve();
+        return fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.text();
+          })
+          .then(function (html) {
+            contents[key].innerHTML = html;
+            loaded[key] = true;
+            if (panels[key] && !panels[key].hidden) buildToc(key);
+          })
+          .catch(function () {
+            contents[key].innerHTML = '<p>Gagal memuat dokumen. Muat ulang halaman.</p>';
+          });
+      }
 
-  <section id="panel-roadmap" class="panel" role="tabpanel" aria-labelledby="tab-roadmap" hidden>
-    <div class="doc-layout"><article class="doc-shell">
-      <div class="doc-topbar"><div class="doc-topbar-left"><span class="doc-type">Company Roadmap</span><span class="doc-status">Public Summary</span></div><button class="tts-btn" type="button" data-tts="content-roadmap"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span class="tts-label">Dengarkan</span></button></div>
-      <div class="doc-prologue"><div class="doc-prologue-grid"><div class="meta-box"><span>Fokus</span><strong>Strategic direction &amp; sequencing</strong></div><div class="meta-box"><span>Public scope</span><strong>High-level phases &amp; posture</strong></div></div><div class="callout"><strong>Boundary:</strong> timeline implementasi, kapasitas, risk scores, personnel, dan keputusan terbuka tidak diterbitkan di sini.</div></div>
-      <article id="content-roadmap" class="doc-body"><div class="doc-loading">Memuat dokumentasi…</div></article>
-    </article><aside class="doc-toc" data-toc-for="content-roadmap"><div class="toc-label">Di halaman ini</div><div class="toc-list"></div></aside></div>
-  </section>
-</main>
+      // Prefetch
+      loadDoc('bible', '/docs/bible.html');
+      loadDoc('blueprint', '/docs/blueprint.html');
+      loadDoc('roadmap', '/docs/roadmap.html');
 
-<footer class="site-footer"><div class="footer-inner"><span>© 2026 AXION Neuralis · Public Documentation v1.0</span><span><a href="https://axion-neuralis.axn.cc.cd">Pages</a> · <a href="https://axion-neuralis-workers.axn.cc.cd">TTS Worker</a></span></div></footer>
-<script src="/js/tts.js"></script>
-<script>
-(function () {
-  'use strict';
-  var panels = { bible: document.getElementById('panel-bible'), blueprint: document.getElementById('panel-blueprint'), roadmap: document.getElementById('panel-roadmap') };
-  var paths = { bible: '/docs/bible.html', blueprint: '/docs/blueprint.html', roadmap: '/docs/roadmap.html' };
-  var loaded = {};
+      function buildToc(name) {
+        var el = contents[name];
+        if (!el) return;
+        var headings = el.querySelectorAll('h2[id], h3[id]');
+        tocList.innerHTML = '';
+        if (!headings.length) {
+          tocSection.hidden = true;
+          return;
+        }
+        tocSection.hidden = false;
+        headings.forEach(function (h) {
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = '#' + h.id;
+          a.textContent = h.textContent.replace(/^\d+\.\s*/, '').trim();
+          a.style.fontSize = h.tagName === 'H3' ? '0.82rem' : '0.88rem';
+          a.style.paddingLeft = h.tagName === 'H3' ? '24px' : '12px';
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            closeSidebar();
+          });
+          li.appendChild(a);
+          tocList.appendChild(li);
+        });
+      }
 
-  function buildToc(targetId) {
-    var target = document.getElementById(targetId), host = document.querySelector('[data-toc-for="' + targetId + '"] .toc-list');
-    if (!target || !host) return;
-    host.innerHTML = '';
-    target.querySelectorAll('h2').forEach(function (h, i) {
-      if (!h.id) h.id = targetId + '-section-' + i;
-      var a = document.createElement('a'); a.href = '#' + h.id; a.textContent = h.textContent.replace(/^\d+\.\s*/, ''); host.appendChild(a);
-    });
-  }
-  function loadDoc(key) {
-    if (loaded[key]) return Promise.resolve();
-    var el = document.getElementById('content-' + key);
-    return fetch(paths[key], { cache: 'force-cache' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (html) {
-      el.innerHTML = html; loaded[key] = true; buildToc(el.id);
-    }).catch(function () { el.innerHTML = '<p>Dokumentasi gagal dimuat. Silakan muat ulang halaman.</p>'; });
-  }
-  function activate(key, updateHash) {
-    Object.keys(panels).forEach(function (k) {
-      var on = k === key, panel = panels[k]; panel.classList.toggle('active', on); panel.hidden = !on;
-    });
-    document.querySelectorAll('.doc-tab').forEach(function (t) { var on = t.dataset.panel === key; t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
-    loadDoc(key);
-    if (window.AxionTTS) window.AxionTTS.stop();
-    if (updateHash) history.replaceState(null, '', '#' + key);
-  }
-  document.querySelectorAll('.doc-tab').forEach(function (tab) { tab.addEventListener('click', function () { activate(tab.dataset.panel, true); document.getElementById('documentation').scrollIntoView({ behavior: 'smooth', block: 'start' }); }); });
-  document.querySelectorAll('.tts-btn').forEach(function (btn) { btn.addEventListener('click', function () { var el = document.getElementById(btn.dataset.tts); if (el && window.AxionTTS) window.AxionTTS.toggle(el, { button: btn }); }); });
+      function activate(name) {
+        Object.keys(panels).forEach(function (k) {
+          var on = k === name;
+          panels[k].hidden = !on;
+        });
+        document.querySelectorAll('[data-nav]').forEach(function (t) {
+          var on = t.getAttribute('data-nav') === name;
+          t.classList.toggle('active', on);
+        });
+        if (window.AxionTTS) AxionTTS.stop();
+        history.replaceState(null, '', '#' + name);
+        if (loaded[name]) buildToc(name);
+        else {
+          tocSection.hidden = true;
+          loadDoc(name, '/docs/' + name + '.html').then(function () { buildToc(name); });
+        }
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        closeSidebar();
+      }
 
-  var hash = location.hash.replace('#', ''); activate(panels[hash] ? hash : 'bible', false);
-  loadDoc('bible'); loadDoc('blueprint'); loadDoc('roadmap');
-  window.addEventListener('hashchange', function () { var h = location.hash.replace('#',''); if (panels[h]) activate(h, false); });
-})();
-</script>
+      document.querySelectorAll('[data-nav]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          activate(el.getAttribute('data-nav'));
+        });
+      });
+
+      var hash = (location.hash || '#bible').replace('#', '');
+      if (panels[hash]) activate(hash);
+      else activate('bible');
+
+      window.addEventListener('hashchange', function () {
+        var h = (location.hash || '#bible').replace('#', '');
+        if (panels[h]) activate(h);
+      });
+
+      document.querySelectorAll('.tts-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-tts');
+          var el = document.getElementById(id);
+          if (!el || !window.AxionTTS) return;
+          AxionTTS.toggle(el, { button: btn });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

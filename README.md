@@ -1,56 +1,43 @@
-# AXION Neuralis — Public Documentation Portal
+# AXION Neuralis — Dokumentasi Publik + TTS Read (v2)
 
-Portal publik AXION untuk tiga dokumen inti: Company Bible, Company Blueprint, dan Company Roadmap.
+Dokumentasi publik yang dirancang ulang: **responsif penuh**, tampilan profesional dark-neural, dan konten disusun sebagai dokumentasi yang merujuk pada dokumen publik (bukan salinan mentah).
 
-Prinsip editorial situs: **dokumen publik adalah source-of-truth, bukan sekadar materi yang disalin ke halaman web**. File Markdown di `frontend/docs/*.md` dipertahankan sebagai source layer; HTML di `frontend/docs/*.html` menjadi documentation layer yang menambahkan metadata, konteks batas publik, dan pengalaman baca yang lebih terstruktur.
+| Layanan  | Domain                              |
+|----------|-------------------------------------|
+| **Pages**   | `https://axion-neuralis.axn.cc.cd`        |
+| **Workers** | `https://axion-neuralis-workers.axn.cc.cd` |
 
-## Struktur
+```
+frontend/                     → Cloudflare Pages
+  index.html                  → hub dokumentasi (sidebar + responsive)
+  docs/bible.html             → Company Bible (dokumentasi terstruktur)
+  docs/blueprint.html         → Blueprint (dokumentasi terstruktur)
+  docs/roadmap.html           → Roadmap (dokumentasi terstruktur)
+  docs/*.md                   → sumber markdown publik
+  js/tts.js                   → client TTS
+  css/style.css               → desain dark, fully responsive
 
-```text
-frontend/
-  index.html              # documentation hub + responsive document switcher
-  css/style.css           # design system, responsive layout, accessibility
-  js/tts.js               # client TTS
-  docs/
-    BIBLE.md              # source publik
-    BLUEPRINT.md          # source publik
-    ROADMAP.md            # source publik
-    bible.html            # presentation layer
-    blueprint.html        # presentation layer
-    roadmap.html          # presentation layer
-  _headers
-  _redirects
-  404.html
-  robots.txt
-  sitemap.xml
-
-workers/axion-tts-worker/
-  src/index.js
-  wrangler.toml
-  README.md
+workers/axion-tts-worker/     → Cloudflare Workers (tidak berubah)
 ```
 
-## UI changes
+## Perubahan utama (v2)
 
-- Layout menggunakan fluid sizing, CSS Grid/Flexbox, `clamp()`, dan breakpoint bertahap agar nyaman dari ponsel kecil sampai desktop lebar.
-- Header dan document switcher tetap usable pada layar sempit.
-- Konten dokumen memiliki reading column, callout, metadata cards, table overflow, serta table-of-contents desktop.
-- Deep-link `#bible`, `#blueprint`, dan `#roadmap` tetap didukung.
-- TTS tetap menggunakan Worker yang sudah ada.
-- Tidak ada library UI tambahan; situs tetap ringan dan mudah dideploy sebagai Cloudflare Pages.
+- **Fully responsive** — sidebar collapsible di mobile, layout menyesuaikan semua ukuran layar
+- **Desain unik & profesional** — dark neural theme, principle cards, timeline, step list, TOC
+- **Dokumentasi, bukan copy** — konten disusun ulang (cards, hierarchy, callout) dengan sumber dokumen publik
+- **Navigasi lebih baik** — sidebar + TOC on-page + deep-link hash
+- **TTS tetap** — tombol Dengarkan di setiap dokumen (Charon · Gemini TTS)
 
 ## Deploy
 
-### Workers
+### 1. Workers
 ```bash
 cd workers/axion-tts-worker
 wrangler secret put GEMINI_API_KEY
 wrangler deploy
 ```
+Custom domain: `axion-neuralis-workers.axn.cc.cd`
 
-### Pages
-Deploy isi folder `frontend/` ke Cloudflare Pages dengan domain:
-`https://axion-neuralis.axn.cc.cd`
-
-Worker URL tetap:
-`https://axion-neuralis-workers.axn.cc.cd`
+### 2. Pages
+Deploy isi folder `frontend/` ke Cloudflare Pages.  
+Custom domain: `axion-neuralis.axn.cc.cd`

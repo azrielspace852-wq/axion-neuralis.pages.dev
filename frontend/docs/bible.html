@@ -1,28 +1,128 @@
-<h1>COMPANY BIBLE — AXION (Public Version)</h1>
-<p><strong>Versi:</strong> 1.0.0-Public</p>
-<p><strong>Status:</strong> Public Summary</p>
-<p><strong>Scope:</strong> High-level principles and governance of AXION company</p>
-<p><strong>Source layer:</strong> PUBLIC-COMPANY-BIBLE-AXION-v1.0.md</p>
-<h2 id="purpose">1. Purpose of This Document</h2>
-<p>This public Bible outlines the non-negotiable principles that guide AXION as a company. It is intentionally high-level and does not contain implementation details, internal decision registers, personnel information, or operational parameters.</p>
-<h2 id="principles">2. Core Design Principles (High-Level)</h2>
-<ul><li><strong>No single point of total control</strong> — no master credential that can unlock the entire infrastructure.</li><li><strong>Scoped access</strong> — credentials and permissions are limited to the specific service or function that needs them.</li><li><strong>Secrets stay out of code</strong> — production secrets are never stored in repositories.</li><li><strong>Authentication is not authorization</strong> — a valid credential does not automatically grant full system access.</li><li><strong>Immutable audit trail</strong> — critical events, especially financial and security events, are recorded in an append-only manner.</li><li><strong>Explicit state transitions</strong> — important status changes only occur through defined, allowed transitions.</li><li><strong>Idempotent critical operations</strong> — repeated identical requests must not produce unintended side effects.</li><li><strong>Clear separation</strong> — company-level rules and project-level rules are kept distinct.</li><li><strong>Approved decisions are binding</strong> — changes to locked principles require proper authority and formal process.</li><li><strong>Claims require evidence</strong> — “approved” does not equal “verified in production.”</li></ul>
-<h2 id="financial">3. Payment &amp; Financial Integrity Principles</h2>
-<ol><li>Validate external inputs before trusting them.</li><li>Persist events before processing them.</li><li>Process events idempotently.</li><li>Use explicit state machines for transaction status.</li><li>Maintain append-only audit history.</li><li>Never silently override terminal states.</li></ol>
-<h2 id="security">4. Security Principles</h2>
-<ul><li>Least privilege by default.</li><li>Constant-time comparison for any secret or signature verification.</li><li>Replay protection on financial paths.</li><li>Strict redaction of secrets, tokens, and personal data from logs.</li><li>All external inputs are treated as untrusted.</li><li>Defense-in-depth on financial pathways.</li></ul>
-<h2 id="privacy">5. Data &amp; Privacy Principles</h2>
-<ul><li>Compliance with applicable personal data protection laws (including Indonesia’s UU PDP) is a design baseline, not an afterthought.</li><li>Data minimization: collect and retain only what is necessary.</li><li>Data subject rights (access, correction, deletion, portability) are supported with proper identity verification.</li><li>Data is classified into clear sensitivity tiers before storage or processing.</li><li>Sharing with third parties requires a lawful basis and appropriate agreements.</li><li>Retention and deletion rules are defined per data category.</li></ul>
-<h3>Data Classification Tiers (Public Summary)</h3>
-<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Meaning</th></tr></thead><tbody><tr><td>PUBLIC</td><td>May be published freely</td></tr><tr><td>INTERNAL</td><td>For internal use only</td></tr><tr><td>CONFIDENTIAL</td><td>Leakage harms users or the business</td></tr><tr><td>RESTRICTED</td><td>Highest protection; system/financial critical</td></tr></tbody></table></div>
-<h2 id="ai">6. AI External Usage Policy (Public)</h2>
-<p><strong>Prohibited</strong> to send to third-party AI tools:</p><ul><li>Secrets and credentials</li><li>Personal identifiable information (PII)</li><li>Financial payloads or ledger data</li><li>Production code that handles secrets or payments</li></ul>
-<p><strong>Allowed</strong> after redaction/anonymization:</p><ul><li>High-level architectural descriptions</li><li>Synthetic or fully redacted code examples</li><li>Anonymized error messages</li></ul>
-<p>New AI tools require formal risk evaluation and approval before use with internal data.</p>
-<h2 id="economics">7. Economic Model (High-Level Only)</h2>
-<p>AXION Coin operates under a strict annual supply discipline and anti-inflation controls. Exact supply numbers, issuance formulas, carry-over rules, and operational parameters are internal and not published in this public version.</p>
-<h2 id="governance">8. Governance (Public Summary)</h2>
-<ul><li>Clear separation of decision domains (architecture, business policy, security, token economy, operations).</li><li>Locked principles can only be changed through formal Owner-level decisions.</li><li>Escalation paths exist for high-risk or cross-domain issues.</li><li>AI systems may assist with drafting but never hold decision authority.</li></ul>
-<p>Personnel assignments and internal decision registers are not included in this public document.</p>
-<h2 id="status">9. Document Status</h2>
-<p>This is a <strong>public summary</strong> derived from the internal Company Bible. It intentionally omits all sensitive, critical, operational, and internal decision details.</p>
+<h2 id="purpose">1. Tujuan Dokumen</h2>
+<p>Company Bible publik ini merangkum prinsip-prinsip non-negotiable yang memandu AXION sebagai perusahaan. Dokumen disusun dari ekstrak publik resmi dan disajikan sebagai dokumentasi yang mudah dibaca — bukan salinan mentah.</p>
+<p>Isi bersifat high-level dan tidak memuat detail implementasi, register keputusan internal, informasi personel, atau parameter operasional.</p>
+
+<h2 id="core-principles">2. Prinsip Desain Inti</h2>
+<p>Sistem AXION dibangun di atas prinsip permanen berikut:</p>
+
+<div class="principle-grid">
+  <div class="principle-card">
+    <h4><span class="num">01</span> No single point of total control</h4>
+    <p>Tidak ada master credential yang dapat membuka seluruh infrastruktur.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">02</span> Scoped access</h4>
+    <p>Kredensial dan permission dibatasi hanya pada layanan atau fungsi yang membutuhkannya.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">03</span> Secrets stay out of code</h4>
+    <p>Production secrets tidak pernah disimpan di repository.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">04</span> Authentication ≠ Authorization</h4>
+    <p>Kredensial valid tidak secara otomatis memberikan akses penuh ke sistem.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">05</span> Immutable audit trail</h4>
+    <p>Event kritis (keuangan &amp; keamanan) dicatat secara append-only.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">06</span> Explicit state transitions</h4>
+    <p>Perubahan status penting hanya melalui transisi yang didefinisikan dan diizinkan.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">07</span> Idempotent critical operations</h4>
+    <p>Permintaan identik yang diulang tidak boleh menghasilkan side-effect yang tidak diinginkan.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">08</span> Clear separation</h4>
+    <p>Aturan level perusahaan dan level proyek dijaga tetap terpisah.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">09</span> Approved decisions are binding</h4>
+    <p>Perubahan prinsip terkunci memerlukan otoritas dan proses formal yang tepat.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">10</span> Claims require evidence</h4>
+    <p>“Approved” tidak sama dengan “verified in production.”</p>
+  </div>
+</div>
+
+<h2 id="payment-integrity">3. Integritas Pembayaran &amp; Keuangan</h2>
+<p>Semua aliran keuangan mengikuti aturan berikut:</p>
+<ol class="step-list">
+  <li>Validasi input eksternal sebelum dipercaya.</li>
+  <li>Persist event sebelum memprosesnya.</li>
+  <li>Proses event secara idempotent.</li>
+  <li>Gunakan state machine eksplisit untuk status transaksi.</li>
+  <li>Pertahankan riwayat audit append-only.</li>
+  <li>Jangan pernah menimpa terminal state secara diam-diam.</li>
+</ol>
+
+<h2 id="security">4. Prinsip Keamanan</h2>
+<ul>
+  <li>Least privilege by default.</li>
+  <li>Constant-time comparison untuk verifikasi secret atau signature.</li>
+  <li>Replay protection pada jalur keuangan.</li>
+  <li>Redaksi ketat terhadap secrets, token, dan data pribadi di log.</li>
+  <li>Semua input eksternal diperlakukan sebagai untrusted.</li>
+  <li>Defense-in-depth pada jalur keuangan.</li>
+</ul>
+
+<h2 id="data-privacy">5. Data &amp; Privasi</h2>
+<ul>
+  <li>Kepatuhan terhadap hukum perlindungan data pribadi yang berlaku (termasuk UU PDP Indonesia) adalah baseline desain, bukan afterthought.</li>
+  <li>Data minimization: kumpulkan dan simpan hanya yang diperlukan.</li>
+  <li>Hak subjek data (akses, koreksi, penghapusan, portabilitas) didukung dengan verifikasi identitas yang tepat.</li>
+  <li>Data diklasifikasikan ke dalam tier sensitivitas sebelum disimpan atau diproses.</li>
+  <li>Berbagi dengan pihak ketiga memerlukan dasar hukum dan perjanjian yang sesuai.</li>
+  <li>Aturan retensi dan penghapusan didefinisikan per kategori data.</li>
+</ul>
+
+<h3 id="data-tiers">Klasifikasi Data (Ringkasan Publik)</h3>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Tier</th><th>Makna</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PUBLIC</td><td>Boleh dipublikasikan secara bebas</td></tr>
+      <tr><td>INTERNAL</td><td>Hanya untuk penggunaan internal</td></tr>
+      <tr><td>CONFIDENTIAL</td><td>Kebocoran merugikan pengguna atau bisnis</td></tr>
+      <tr><td>RESTRICTED</td><td>Perlindungan tertinggi; kritis sistem/keuangan</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="ai-policy">6. Kebijakan Penggunaan AI Eksternal</h2>
+<p><strong>Dilarang</strong> dikirim ke tool AI pihak ketiga:</p>
+<ul>
+  <li>Secrets dan credentials</li>
+  <li>Personal identifiable information (PII)</li>
+  <li>Payload keuangan atau data ledger</li>
+  <li>Kode produksi yang menangani secrets atau pembayaran</li>
+</ul>
+<p><strong>Diizinkan</strong> (setelah redaksi/anonimisasi):</p>
+<ul>
+  <li>Deskripsi arsitektur tingkat tinggi</li>
+  <li>Contoh kode sintetis atau yang sudah di-redact sepenuhnya</li>
+  <li>Pesan error yang sudah dianonimkan</li>
+</ul>
+<p>Tool AI baru memerlukan evaluasi risiko formal dan persetujuan sebelum digunakan dengan data internal.</p>
+
+<h2 id="economic">7. Model Ekonomi (High-Level)</h2>
+<p>AXION Coin beroperasi di bawah disiplin supply tahunan yang ketat dan kontrol anti-inflasi.</p>
+<p>Angka supply, formula issuance, aturan carry-over, dan parameter operasional bersifat internal dan tidak dipublikasikan dalam versi publik ini.</p>
+
+<h2 id="governance">8. Tata Kelola (Ringkasan Publik)</h2>
+<ul>
+  <li>Pemisahan jelas domain keputusan (arsitektur, kebijakan bisnis, keamanan, token economy, operasi).</li>
+  <li>Prinsip terkunci hanya dapat diubah melalui keputusan formal level Owner.</li>
+  <li>Jalur eskalasi tersedia untuk isu berisiko tinggi atau lintas-domain.</li>
+  <li>Sistem AI boleh membantu drafting, tetapi tidak pernah memegang otoritas keputusan.</li>
+</ul>
+<p>Assignment personel dan register keputusan internal tidak disertakan dalam dokumen publik ini.</p>
+
+<div class="doc-status">
+  <strong>Status dokumen.</strong> Ini adalah ringkasan publik yang diturunkan dari Company Bible internal. Semua detail sensitif, kritis, operasional, dan keputusan internal sengaja dihilangkan. Versi internal yang mengikat hanya tersedia di bawah kontrol akses yang sesuai.
+</div>

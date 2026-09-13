@@ -1,9 +1,80 @@
-<h1>COMPANY BLUEPRINT — AXION (Public Version)</h1>
-<p><strong>Versi:</strong> 1.0.0-Public</p><p><strong>Status:</strong> Public Summary</p><p><strong>Scope:</strong> High-level technical and security posture of AXION</p><p><strong>Source layer:</strong> PUBLIC-COMPANY-BLUEPRINT-AXION-v1.0.md</p>
-<h2 id="purpose">1. Purpose of This Document</h2><p>This public Blueprint describes the security philosophy and technical posture of AXION at a conceptual level. It does not contain implementable specifications, exact cryptographic parameters, header formats, rate-limit values, or vendor-specific details.</p>
-<h2 id="security">2. Security Philosophy</h2><ul><li><strong>Threat-aware design</strong> — systems are designed with known attack categories in mind (replay, credential theft, data leakage, insider misuse, supply-chain risk, webhook forgery, and fraud).</li><li><strong>Defense in depth</strong> — multiple independent layers protect financial and sensitive paths.</li><li><strong>Least privilege</strong> — every service and role receives only the minimum access required.</li><li><strong>Secrets isolation</strong> — production secrets live only in secure deployment configuration, never in source code or logs.</li><li><strong>Constant-time secret handling</strong> — all secret and signature comparisons must be resistant to timing attacks.</li><li><strong>Replay resistance</strong> — financial and cross-service requests include freshness and uniqueness protections.</li><li><strong>Strict input validation</strong> — everything arriving from outside the trust boundary is treated as untrusted.</li><li><strong>Auditability</strong> — security-relevant and financial events are recorded in an append-only manner.</li></ul>
-<h2 id="auth">3. Authentication &amp; Authorization Model (Conceptual)</h2><ul><li>Services authenticate using scoped credentials obtained from their own secure environment.</li><li>A valid credential does not automatically grant authorization to every resource.</li><li>Authentication and authorization are treated as separate concerns.</li><li>Financial write operations are restricted to services that hold the appropriate scoped permission.</li><li>Development and production secret handling follow different but equally strict rules.</li></ul><p>Exact header formats, signature algorithms, nonce rules, and validation sequences are internal and not published here.</p>
-<h2 id="financial">4. Financial Path Protections (High-Level)</h2><ul><li>Signature validation of external payment events before acceptance.</li><li>Immediate persistence of events before heavy processing.</li><li>Idempotency for all critical financial operations.</li><li>Explicit state machines for transaction lifecycle.</li><li>Reconciliation and anomaly detection.</li><li>Circuit-breaking behavior toward external payment providers.</li></ul><p>Vendor-specific integration details and exact SLA numbers are omitted from this public version.</p>
-<h2 id="data">5. Data Handling (Public Summary)</h2><ul><li>Every new data store must declare the highest sensitivity tier it will contain.</li><li>Retention periods are defined per category and reviewed for legal compliance.</li><li>Coin ledger entries are permanent and append-only.</li><li>Personal data follows minimization, purpose limitation, and subject-rights requirements.</li><li>Logs are redacted of secrets, tokens, and personal identifiers.</li></ul><p>Exact retention durations and storage mechanisms remain internal.</p>
-<h2 id="verification">6. Verification Before Implementation</h2><p>Certain external integration details and legal agreements must be confirmed before production use. These verification items are tracked internally and are not listed in the public document.</p>
-<h2 id="status">7. Document Status</h2><p>This is a <strong>public summary</strong> derived from the internal Company Blueprint. It intentionally omits all detailed technical contracts, exact security parameters, rate limits, vendor specifics, and internal operational controls.</p>
+<h2 id="purpose">1. Tujuan Dokumen</h2>
+<p>Blueprint publik ini menggambarkan filosofi keamanan dan postur teknis AXION pada tingkat konseptual. Disusun dari ekstrak publik resmi dan disajikan sebagai dokumentasi yang mudah dibaca.</p>
+<p>Dokumen ini tidak memuat spesifikasi yang dapat diimplementasikan, parameter kriptografi eksak, format header, nilai rate-limit, atau detail spesifik vendor.</p>
+
+<h2 id="security-philosophy">2. Filosofi Keamanan</h2>
+<p>AXION memperlakukan hal-hal berikut sebagai fondasi:</p>
+
+<div class="principle-grid">
+  <div class="principle-card">
+    <h4><span class="num">01</span> Threat-aware design</h4>
+    <p>Sistem dirancang dengan kategori serangan yang dikenal: replay, credential theft, data leakage, insider misuse, supply-chain risk, webhook forgery, dan fraud.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">02</span> Defense in depth</h4>
+    <p>Beberapa lapisan independen melindungi jalur keuangan dan data sensitif.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">03</span> Least privilege</h4>
+    <p>Setiap service dan role hanya menerima akses minimum yang diperlukan.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">04</span> Secrets isolation</h4>
+    <p>Production secrets hanya hidup di konfigurasi deployment yang aman, tidak pernah di source code atau log.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">05</span> Constant-time secret handling</h4>
+    <p>Semua perbandingan secret dan signature harus tahan terhadap timing attack.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">06</span> Replay resistance</h4>
+    <p>Request keuangan dan cross-service menyertakan proteksi freshness dan uniqueness.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">07</span> Strict input validation</h4>
+    <p>Segala sesuatu yang datang dari luar trust boundary diperlakukan sebagai untrusted.</p>
+  </div>
+  <div class="principle-card">
+    <h4><span class="num">08</span> Auditability</h4>
+    <p>Event yang relevan dengan keamanan dan keuangan dicatat secara append-only.</p>
+  </div>
+</div>
+
+<h2 id="auth-model">3. Model Authentication &amp; Authorization (Konseptual)</h2>
+<ul>
+  <li>Service mengautentikasi menggunakan scoped credentials yang diperoleh dari environment aman mereka sendiri.</li>
+  <li>Kredensial valid tidak secara otomatis memberikan otorisasi ke setiap resource.</li>
+  <li>Authentication dan authorization diperlakukan sebagai concern yang terpisah.</li>
+  <li>Operasi write keuangan dibatasi hanya pada service yang memiliki permission scoped yang sesuai.</li>
+  <li>Penanganan secret development dan production mengikuti aturan yang berbeda tetapi sama-sama ketat.</li>
+</ul>
+<p>Format header, algoritma signature, aturan nonce, dan urutan validasi bersifat internal dan tidak dipublikasikan di sini.</p>
+
+<h2 id="financial-path">4. Proteksi Jalur Keuangan</h2>
+<p>Aliran keuangan mengintegrasikan:</p>
+<ul>
+  <li>Validasi signature event pembayaran eksternal sebelum penerimaan.</li>
+  <li>Persistensi event segera sebelum pemrosesan berat.</li>
+  <li>Idempotency untuk semua operasi keuangan kritis.</li>
+  <li>State machine eksplisit untuk lifecycle transaksi.</li>
+  <li>Rekonsiliasi dan deteksi anomali.</li>
+  <li>Perilaku circuit-breaking terhadap payment provider eksternal.</li>
+</ul>
+<p>Detail integrasi spesifik vendor dan angka SLA eksak dihilangkan dari versi publik ini.</p>
+
+<h2 id="data-handling">5. Penanganan Data (Ringkasan Publik)</h2>
+<ul>
+  <li>Setiap data store baru harus mendeklarasikan tier sensitivitas tertinggi yang akan dikandungnya.</li>
+  <li>Periode retensi didefinisikan per kategori dan ditinjau untuk kepatuhan hukum.</li>
+  <li>Entry ledger Coin bersifat permanen dan append-only.</li>
+  <li>Data pribadi mengikuti minimisasi, pembatasan tujuan, dan persyaratan hak subjek.</li>
+  <li>Log di-redact dari secrets, token, dan identifier pribadi.</li>
+</ul>
+<p>Durasi retensi eksak dan mekanisme penyimpanan tetap internal.</p>
+
+<h2 id="verification">6. Verifikasi Sebelum Implementasi</h2>
+<p>Detail integrasi eksternal tertentu dan perjanjian hukum harus dikonfirmasi sebelum penggunaan produksi. Item verifikasi ini dilacak secara internal dan tidak dicantumkan dalam dokumen publik.</p>
+
+<div class="doc-status">
+  <strong>Status dokumen.</strong> Ini adalah ringkasan publik yang diturunkan dari Company Blueprint internal. Semua kontrak teknis detail, parameter keamanan eksak, rate limit, spesifikasi vendor, dan kontrol operasional internal sengaja dihilangkan. Blueprint internal yang mengikat hanya tersedia di bawah kontrol akses yang sesuai.
+</div>
