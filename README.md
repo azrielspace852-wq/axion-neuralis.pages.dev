@@ -1,64 +1,56 @@
-# AXION Neuralis — Updated Public Docs + TTS Read Feature
+# AXION Neuralis — Public Documentation Portal
 
-Paket berisi:
+Portal publik AXION untuk tiga dokumen inti: Company Bible, Company Blueprint, dan Company Roadmap.
 
-```
-frontend/          → Cloudflare Pages (situs + dokumentasi publik)
-workers/
-  axion-tts-worker/ → Cloudflare Worker untuk fitur Read (TTS)
-```
+Prinsip editorial situs: **dokumen publik adalah source-of-truth, bukan sekadar materi yang disalin ke halaman web**. File Markdown di `frontend/docs/*.md` dipertahankan sebagai source layer; HTML di `frontend/docs/*.html` menjadi documentation layer yang menambahkan metadata, konteks batas publik, dan pengalaman baca yang lebih terstruktur.
 
-## 1. Frontend (Pages)
+## Struktur
 
-- Konten dokumentasi diganti dengan **versi publik** Company Bible, Blueprint, dan Roadmap.
-- Halaman baru: `/docs.html` — tab Bible / Blueprint / Roadmap + tombol **Dengarkan**.
-- File sumber publik: `frontend/docs/AXION_*.md` dan `section-*.html`.
-- Client TTS: `frontend/js/tts.js`.
+```text
+frontend/
+  index.html              # documentation hub + responsive document switcher
+  css/style.css           # design system, responsive layout, accessibility
+  js/tts.js               # client TTS
+  docs/
+    BIBLE.md              # source publik
+    BLUEPRINT.md          # source publik
+    ROADMAP.md            # source publik
+    bible.html            # presentation layer
+    blueprint.html        # presentation layer
+    roadmap.html          # presentation layer
+  _headers
+  _redirects
+  404.html
+  robots.txt
+  sitemap.xml
 
-### Deploy Pages
-
-1. Upload isi folder `frontend/` ke Cloudflare Pages (atau connect Git).
-2. Setelah Worker di-deploy, set URL Worker di frontend:
-
-   Buka `js/tts.js` dan ganti:
-
-   ```js
-   const DEFAULT_WORKER_URL = 'https://axion-tts-worker.YOUR_SUBDOMAIN.workers.dev';
-   ```
-
-   Atau inject di halaman sebelum `tts.js`:
-
-   ```html
-   <script>window.AXION_TTS_WORKER_URL = 'https://...workers.dev';</script>
-   <script src="/js/tts.js"></script>
-   ```
-
-## 2. Backend (Workers) — Fitur Read / TTS
-
-- Model: **gemini-3.1-flash-tts-preview**
-- Voice: **Charon**
-- Nada: santai, conversational, jeda natural (prompt + audio tags)
-
-### Secret yang wajib diisi di Dashboard Cloudflare
-
-| Name            | Type   | Keterangan                          |
-|-----------------|--------|-------------------------------------|
-| `GEMINI_API_KEY`| Secret | API key Google AI Studio / Gemini   |
-
-Lihat `workers/axion-tts-worker/README.md` untuk detail deploy & API.
-
-## 3. Alur TTS
-
-```
-Browser (docs.html / tombol Dengarkan)
-    → POST /tts  { text, voice: "Charon" }
-    → Worker (secret GEMINI_API_KEY)
-    → Gemini generateContent (AUDIO + speechConfig Charon + style prompt)
-    → JSON { audioBase64: PCM 24kHz }
-    → Frontend konversi PCM → WAV → play
+workers/axion-tts-worker/
+  src/index.js
+  wrangler.toml
+  README.md
 ```
 
-## 4. Catatan keamanan (sesuai Company Bible publik)
+## UI changes
 
-- API key **hanya** di Cloudflare Secret — tidak masuk ke repository / frontend.
-- Teks yang dikirim ke TTS hanya konten publik dokumentasi (bukan secret / PII / data finansial).
+- Layout menggunakan fluid sizing, CSS Grid/Flexbox, `clamp()`, dan breakpoint bertahap agar nyaman dari ponsel kecil sampai desktop lebar.
+- Header dan document switcher tetap usable pada layar sempit.
+- Konten dokumen memiliki reading column, callout, metadata cards, table overflow, serta table-of-contents desktop.
+- Deep-link `#bible`, `#blueprint`, dan `#roadmap` tetap didukung.
+- TTS tetap menggunakan Worker yang sudah ada.
+- Tidak ada library UI tambahan; situs tetap ringan dan mudah dideploy sebagai Cloudflare Pages.
+
+## Deploy
+
+### Workers
+```bash
+cd workers/axion-tts-worker
+wrangler secret put GEMINI_API_KEY
+wrangler deploy
+```
+
+### Pages
+Deploy isi folder `frontend/` ke Cloudflare Pages dengan domain:
+`https://axion-neuralis.axn.cc.cd`
+
+Worker URL tetap:
+`https://axion-neuralis-workers.axn.cc.cd`

@@ -1,25 +1,22 @@
 /**
- * AXION Neuralis — Client-side TTS ("Read") helper
- * Calls Cloudflare Worker → Gemini 3.1 Flash TTS (Charon voice)
- *
- * Configure worker URL below (or via window.AXION_TTS_WORKER_URL).
+ * AXION Neuralis — TTS client (fitur Read)
+ * Worker : https://axion-neuralis-workers.axn.cc.cd
+ * Model  : gemini-3.1-flash-tts-preview
+ * Voice  : Charon
  */
 (function (global) {
   'use strict';
 
-  const DEFAULT_WORKER_URL = 'https://axion-neuralis-workers.axn.cd';
-
   const WORKER_URL =
     (typeof global.AXION_TTS_WORKER_URL === 'string' && global.AXION_TTS_WORKER_URL) ||
-    DEFAULT_WORKER_URL;
+    'https://axion-neuralis-workers.axn.cc.cd';
 
   let currentAudio = null;
   let currentAbort = null;
+  let objectUrl = null;
 
-  /**
-   * Convert raw PCM (s16le, 24 kHz, mono) base64 → playable WAV Blob URL
-   */
-  function pcmBase64ToWavUrl(base64, sampleRate = 24000) {
+  function pcmBase64ToWavUrl(base64, sampleRate) {
+    sampleRate = sampleRate || 24000;
     const binary = atob(base64);
     const len = binary.length;
     const pcm = new Uint8Array(len);
@@ -41,8 +38,8 @@
     view.setUint32(4, 36 + dataSize, true);
     writeStr(8, 'WAVE');
     writeStr(12, 'fmt ');
-    view.setUint32(16, 16, true); // PCM chunk size
-    view.setUint16(20, 1, true); // audio format = PCM
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
     view.setUint16(22, numChannels, true);
     view.setUint32(24, sampleRate, true);
     view.setUint32(28, byteRate, true);
@@ -53,12 +50,10 @@
 
     const wavBytes = new Uint8Array(buffer);
     wavBytes.set(pcm, 44);
-
-    const blob = new Blob([wavBytes], { type: 'audio/wav' });
-    return URL.createObjectURL(blob);
+    return URL.createObjectURL(new Blob([wavBytes], { type: 'audio/wav' }));
   }
 
-  function stopCurrent() {
+  function stop() {
     if (currentAbort) {
       try { currentAbort.abort(); } catch (_) {}
       currentAbort = null;
@@ -66,39 +61,50 @@
     if (currentAudio) {
       try {
         currentAudio.pause();
-        currentAudio.src = '';
+        currentAudio.removeAttribute('src');
+        currentAudio.load();
       } catch (_) {}
       currentAudio = null;
     }
+    if (objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch (_) {}
+      objectUrl = null;
+    }
   }
 
-  /**
-   * Request TTS from Worker and play.
-   * @param {string} text
-   * @param {object} options { button, onStart, onEnd, onError }
-   */
-  async function readText(text, options = {}) {
+  function setButtonState(btn, state) {
+    if (!btn) return;
+    const label = btn.querySelector('.tts-label');
+    btn.classList.remove('playing', 'loading');
+    btn.disabled = false;
+    if (state === 'loading') {
+      btn.disabled = true;
+      btn.classList.add('loading');
+      if (label) label.textContent = 'Menyiapkan…';
+    } else if (state === 'playing') {
+      btn.classList.add('playing');
+      if (label) label.textContent = 'Berhenti';
+    } else {
+      if (label) label.textContent = 'Dengarkan';
+    }
+  }
+
+  async function read(text, options) {
+    options = options || {};
     const clean = (text || '').trim();
     if (!clean) {
       if (options.onError) options.onError(new Error('Teks kosong'));
       return;
     }
 
-    stopCurrent();
-
-    const btn = options.button;
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('tts-loading');
-      const label = btn.querySelector('.tts-label');
-      if (label) label.textContent = 'Menyiapkan suara…';
-    }
+    stop();
+    setButtonState(options.button, 'loading');
 
     const controller = new AbortController();
     currentAbort = controller;
 
     try {
-      const res = await fetch(`${WORKER_URL}/tts`, {
+      const res = await fetch(WORKER_URL.replace(/\/$/, '') + '/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,53 +115,41 @@
       });
 
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || `HTTP ${res.status}`);
+        let detail = 'HTTP ' + res.status;
+        try {
+          const err = await res.json();
+          if (err.error) detail = err.error;
+        } catch (_) {}
+        throw new Error(detail);
       }
 
       const data = await res.json();
       if (!data.audioBase64) throw new Error('Tidak ada data audio');
 
-      const url = pcmBase64ToWavUrl(data.audioBase64);
-      const audio = new Audio(url);
+      objectUrl = pcmBase64ToWavUrl(data.audioBase64);
+      const audio = new Audio(objectUrl);
       currentAudio = audio;
 
-      audio.addEventListener('ended', () => {
-        URL.revokeObjectURL(url);
-        currentAudio = null;
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove('tts-loading', 'tts-playing');
-          const label = btn.querySelector('.tts-label');
-          if (label) label.textContent = 'Dengarkan';
-        }
+      audio.addEventListener('ended', function () {
+        stop();
+        setButtonState(options.button, 'idle');
         if (options.onEnd) options.onEnd();
       });
 
-      audio.addEventListener('error', () => {
-        URL.revokeObjectURL(url);
+      audio.addEventListener('error', function () {
+        stop();
+        setButtonState(options.button, 'idle');
         if (options.onError) options.onError(new Error('Gagal memutar audio'));
       });
 
-      if (btn) {
-        btn.classList.remove('tts-loading');
-        btn.classList.add('tts-playing');
-        const label = btn.querySelector('.tts-label');
-        if (label) label.textContent = 'Berhenti';
-        btn.disabled = false;
-      }
-
+      setButtonState(options.button, 'playing');
       if (options.onStart) options.onStart();
       await audio.play();
     } catch (err) {
       if (err.name === 'AbortError') return;
       console.error('[AXION TTS]', err);
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.remove('tts-loading', 'tts-playing');
-        const label = btn.querySelector('.tts-label');
-        if (label) label.textContent = 'Dengarkan';
-      }
+      stop();
+      setButtonState(options.button, 'idle');
       if (options.onError) options.onError(err);
       else alert('Gagal menghasilkan suara: ' + (err.message || err));
     } finally {
@@ -163,36 +157,24 @@
     }
   }
 
-  /**
-   * Toggle: if playing → stop, else read the given text / element.
-   */
-  function toggleRead(textOrElement, options = {}) {
+  function toggle(textOrEl, options) {
+    options = options || {};
     if (currentAudio && !currentAudio.paused) {
-      stopCurrent();
-      if (options.button) {
-        options.button.classList.remove('tts-playing');
-        const label = options.button.querySelector('.tts-label');
-        if (label) label.textContent = 'Dengarkan';
-      }
+      stop();
+      setButtonState(options.button, 'idle');
       return;
     }
-
-    let text = '';
-    if (typeof textOrElement === 'string') {
-      text = textOrElement;
-    } else if (textOrElement instanceof HTMLElement) {
-      text = textOrElement.innerText || textOrElement.textContent || '';
-    }
-    return readText(text, options);
+    var text = '';
+    if (typeof textOrEl === 'string') text = textOrEl;
+    else if (textOrEl && textOrEl.innerText) text = textOrEl.innerText;
+    else if (textOrEl && textOrEl.textContent) text = textOrEl.textContent;
+    return read(text, options);
   }
 
-  // Public API
   global.AxionTTS = {
-    read: readText,
-    toggle: toggleRead,
-    stop: stopCurrent,
-    setWorkerUrl(url) {
-      global.AXION_TTS_WORKER_URL = url;
-    },
+    read: read,
+    toggle: toggle,
+    stop: stop,
+    workerUrl: WORKER_URL,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

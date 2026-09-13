@@ -1,0 +1,13 @@
+name = "axion-neuralis-workers"
+main = "src/index.js"
+compatibility_date = "2025-04-01"
+
+# Custom domain (set in Cloudflare Dashboard → Workers → Triggers → Custom Domains):
+#   axion-neuralis-workers.axn.cc.cd
+#
+# Secret (Dashboard → Settings → Variables → Secrets):
+#   GEMINI_API_KEY
+#
+# CLI:
+#   wrangler secret put GEMINI_API_KEY
+#   wrangler deploy
