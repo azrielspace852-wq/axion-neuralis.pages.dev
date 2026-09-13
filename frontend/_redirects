@@ -1,0 +1,12 @@
+# AXION Neuralis Redirection Engine Rules
+# Force clean URLs by routing paths internally
+/index.html   /   301
+/about.html   /about   301
+/services.html   /services   301
+/contact.html   /contact   301
+
+# Clean URL handling for assets and data routes
+/events.json   /data/events.json   200
+
+# Primary Fallback Routing for Non-existent routes (Custom 404 Routing)
+/*   /404.html   404
