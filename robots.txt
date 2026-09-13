@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /templates/
-Disallow: /data/
-
-Sitemap: https://axion-neuralis.pages.dev/sitemap.xml
